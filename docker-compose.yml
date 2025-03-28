@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - JWT_SECRET=your_jwt_secret
+      - IMAGE_URL_DOMAIN=http://localhost:3002
+      - IMAGE_DIR=/app/public
+      - ORIGIN=http://localhost:3000
+    volumes:
+      - ./public:/app/public
+    restart: unless-stopped 
