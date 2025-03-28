@@ -35,54 +35,17 @@ class Database {
       )
     `);
 
-    // Check if message table exists
-    const tableExists = await this.get("SELECT name FROM sqlite_master WHERE type='table' AND name='message'");
-    
-    if (tableExists) {
-      // If the table exists, we need to recreate it with the new schema
-      // First, let's backup the existing data
-      await this.run(`CREATE TABLE IF NOT EXISTS message_backup AS SELECT * FROM message`);
-      
-      // Drop the existing table
-      await this.run(`DROP TABLE message`);
-      
-      // Create the new message table with id as PRIMARY KEY
-      await this.run(`
-        CREATE TABLE message (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          vch_code TEXT NOT NULL,
-          user_id INTEGER REFERENCES users(id),
-          message TEXT NOT NULL,
-          role TEXT NOT NULL,
-          created_at TEXT
-        )
-      `);
-      
-      // Try to restore data from backup if it exists
-      // try {
-      //   await this.run(`
-      //     INSERT INTO message (vch_code, user_id, message, role, created_at)
-      //     SELECT vch_code, user_id, message, role, created_at FROM message_backup
-      //   `);
-        
-      //   // Drop the backup table
-      //   await this.run(`DROP TABLE message_backup`);
-      // } catch (err) {
-      //   console.error('Error restoring message data:', err);
-      // }
-    } else {
-      // If the table doesn't exist, create it with the new schema
-      await this.run(`
-        CREATE TABLE IF NOT EXISTS message (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          vch_code TEXT NOT NULL,
-          user_id INTEGER REFERENCES users(id),
-          message TEXT NOT NULL,
-          role TEXT NOT NULL,
-          created_at TEXT
-        )
-      `);
-    }
+    // Create message table if it doesn't exist
+    await this.run(`
+      CREATE TABLE IF NOT EXISTS message (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        vch_code TEXT NOT NULL,
+        user_id INTEGER REFERENCES users(id),
+        message TEXT NOT NULL,
+        role TEXT NOT NULL,
+        created_at TEXT
+      )
+    `);
   }
 
   async run(query, params = []) {
