@@ -271,7 +271,14 @@ router.post('/messages', authenticateJWT, async (req, res) => {
         [vch_code, userId, message, role, currentTime]
       );
   
-      const newMessage = await db.get('SELECT * FROM message WHERE id = ?', [result.lastID]);
+      // Get the new message with user's first_name
+      const newMessage = await db.get(`
+        SELECT m.*, u.first_name 
+        FROM message m
+        LEFT JOIN users u ON m.user_id = u.id
+        WHERE m.id = ?
+      `, [result.lastID]);
+      
       res.status(201).json({
         success: true,
         message: 'Message created successfully',
@@ -296,7 +303,13 @@ router.post('/messages', authenticateJWT, async (req, res) => {
         });
       }
   
-      const messages = await db.all('SELECT * FROM message');
+      const messages = await db.all(`
+        SELECT m.*, u.first_name 
+        FROM message m
+        LEFT JOIN users u ON m.user_id = u.id
+        ORDER BY m.id DESC
+      `);
+      
       res.json({
         success: true,
         message: 'All messages retrieved successfully',
@@ -315,12 +328,20 @@ router.post('/messages', authenticateJWT, async (req, res) => {
   router.get('/messages/:vch_code', authenticateJWT, async (req, res) => {
     try {
       const vch_code = req.params.vch_code;
-      const messages = await db.all('SELECT * FROM message WHERE vch_code = ? ORDER BY id ASC', [vch_code]);
-  
+      
+      // Modified query to join with users table and get first_name
+      const messages = await db.all(`
+        SELECT m.*, u.first_name 
+        FROM message m
+        LEFT JOIN users u ON m.user_id = u.id
+        WHERE m.vch_code = ? 
+        ORDER BY m.id ASC
+      `, [vch_code]);
+
       if (messages.length === 0) {
         return res.status(404).json({ success: false, message: 'No messages found for this code' });
       }
-  
+
       // For non-admin/employee users, check if they have access to this conversation
       if (!['admin', 'employee'].includes(req.user.type)) {
         // Check if any message in this conversation belongs to the user
@@ -332,7 +353,7 @@ router.post('/messages', authenticateJWT, async (req, res) => {
           });
         }
       }
-  
+
       res.json({
         success: true,
         message: 'Conversation retrieved successfully',
@@ -374,7 +395,14 @@ router.post('/messages', authenticateJWT, async (req, res) => {
         [message, role, currentTime, messageId]
       );
   
-      const updatedMessage = await db.get('SELECT * FROM message WHERE id = ?', [messageId]);
+      // Get the updated message with user's first_name
+      const updatedMessage = await db.get(`
+        SELECT m.*, u.first_name 
+        FROM message m
+        LEFT JOIN users u ON m.user_id = u.id
+        WHERE m.id = ?
+      `, [messageId]);
+      
       res.json({
         success: true,
         message: 'Message updated successfully',
