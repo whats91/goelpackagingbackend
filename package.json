@@ -1,0 +1,34 @@
+{
+  "name": "goelpackaging",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "bin": "index.js",
+  "scripts": {
+    "build": "pkg .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "pkg": "^5.8.1",
+    "short-uuid": "^5.2.0",
+    "sqlite3": "^5.1.7"
+  },
+  "pkg": {
+    "assets": [
+      "node_modules/**/*",
+      "public/**/*"
+    ],
+    "targets": [
+      "node18-win-x64"
+    ],
+    "output": "goelpackaging.exe"
+  }
+}
