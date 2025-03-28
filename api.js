@@ -20,6 +20,13 @@ const authenticateJWT = (req, res, next) => {
   });
 };
 
+// Helper function to get formatted current time for Windows
+const getCurrentTime = () => {
+  const now = new Date();
+  // Format: DD/MM/YYYY HH:MM:SS
+  return `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+};
+
 // Registration Endpoint
 router.post('/register', async (req, res) => {
   try {
@@ -255,10 +262,13 @@ router.post('/messages', authenticateJWT, async (req, res) => {
         }
       }
   
-      // Insert new message
+      // Get current system time
+      const currentTime = getCurrentTime();
+  
+      // Insert new message with current time
       const result = await db.run(
-        'INSERT INTO message (vch_code, user_id, message, role) VALUES (?, ?, ?, ?)',
-        [vch_code, userId, message, role]
+        'INSERT INTO message (vch_code, user_id, message, role, created_at) VALUES (?, ?, ?, ?, ?)',
+        [vch_code, userId, message, role, currentTime]
       );
   
       const newMessage = await db.get('SELECT * FROM message WHERE id = ?', [result.lastID]);
@@ -356,9 +366,12 @@ router.post('/messages', authenticateJWT, async (req, res) => {
         });
       }
   
+      // Get current system time for update
+      const currentTime = getCurrentTime();
+  
       await db.run(
-        'UPDATE message SET message = ?, role = ? WHERE id = ?',
-        [message, role, messageId]
+        'UPDATE message SET message = ?, role = ?, created_at = ? WHERE id = ?',
+        [message, role, currentTime, messageId]
       );
   
       const updatedMessage = await db.get('SELECT * FROM message WHERE id = ?', [messageId]);

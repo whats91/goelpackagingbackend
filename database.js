@@ -54,7 +54,7 @@ class Database {
           user_id INTEGER REFERENCES users(id),
           message TEXT NOT NULL,
           role TEXT NOT NULL,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+          created_at TEXT
         )
       `);
       
@@ -79,7 +79,7 @@ class Database {
           user_id INTEGER REFERENCES users(id),
           message TEXT NOT NULL,
           role TEXT NOT NULL,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+          created_at TEXT
         )
       `);
     }
